@@ -37,3 +37,26 @@ export default async function handler(req, res) {
   const endDate = new Date(startDate.getTime() + duration * 60000);
 
   const payload = {
+    summary,
+    description,
+    start: startDate.toISOString(),
+    end: endDate.toISOString()
+  };
+
+  console.log('Forwarding payload to scheduler:', JSON.stringify(payload, null, 2));
+
+  try {
+    const response = await fetch('https://v0-new-project-iirjbfvrvmv.vercel.app/api/schedule', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await response.text();
+    console.log('Scheduler Response:', text);
+    res.status(response.status).send(text);
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).send('Failed to forward request');
+  }
+}
