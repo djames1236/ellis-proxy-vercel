@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const body = req.body; // No parsing needed — already parsed JSON
+  const body = req.body;
 
   const { summary, description = '', year, month, day, hour, minute, duration } = body;
 
