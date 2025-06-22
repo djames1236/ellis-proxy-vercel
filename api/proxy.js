@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 export const config = {
   api: {
     bodyParser: false
@@ -55,4 +57,6 @@ export default async function handler(req, res) {
     res.status(response.status).send(text);
   } catch (err) {
     console.error('Error:', err);
-    res.status(500).send('Failed to forward req
+    res.status(500).send('Failed to forward request');
+  }
+}
