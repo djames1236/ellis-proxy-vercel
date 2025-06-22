@@ -12,7 +12,6 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Read raw body stream manually
   let rawBody = '';
   for await (const chunk of req) {
     rawBody += chunk;
