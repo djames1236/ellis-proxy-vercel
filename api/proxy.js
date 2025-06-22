@@ -1,10 +1,30 @@
+export const config = {
+  api: {
+    bodyParser: false
+  }
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).send('Method Not Allowed');
     return;
   }
 
-  const { summary, description = '', year, month, day, hour, minute, duration } = req.body;
+  let rawBody = '';
+  for await (const chunk of req) {
+    rawBody += chunk;
+  }
+
+  let body;
+  try {
+    body = JSON.parse(rawBody.trim());
+  } catch (err) {
+    console.error('Invalid JSON:', err);
+    res.status(400).send('Invalid JSON');
+    return;
+  }
+
+  const { summary, description = '', year, month, day, hour, minute, duration } = body;
 
   if (!summary || !year || !month || !day || !hour || !minute || !duration) {
     res.status(400).send('Missing required parameters.');
@@ -35,6 +55,4 @@ export default async function handler(req, res) {
     res.status(response.status).send(text);
   } catch (err) {
     console.error('Error:', err);
-    res.status(500).send('Failed to forward request');
-  }
-}
+    res.status(500).send('Failed to forward req
