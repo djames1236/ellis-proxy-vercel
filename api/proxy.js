@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 export const config = {
   api: {
     bodyParser: false
@@ -19,7 +17,7 @@ export default async function handler(req, res) {
 
   let body;
   try {
-    body = JSON.parse(rawBody);
+    body = JSON.parse(rawBody.trim());  // <<< THIS IS THE FIX 🔑
   } catch (err) {
     console.error('Invalid JSON:', err);
     res.status(400).send('Invalid JSON');
