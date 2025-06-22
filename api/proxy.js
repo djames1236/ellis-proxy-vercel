@@ -6,7 +6,25 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { summary, description = '', year, month, day, hour, minute, duration } = req.body;
+  let body;
+
+  try {
+    body = JSON.parse(req.body);
+  } catch (err) {
+    body = req.body; // If Vercel already parsed it
+  }
+
+  // Support both raw and already-parsed body
+  const {
+    summary,
+    description = '',
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    duration
+  } = body;
 
   if (!summary || !year || !month || !day || !hour || !minute || !duration) {
     res.status(400).send('Missing required parameters.');
