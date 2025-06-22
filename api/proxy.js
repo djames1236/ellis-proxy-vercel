@@ -1,44 +1,41 @@
 import fetch from 'node-fetch';
 
-export const config = {
-  api: {
-    bodyParser: false
-  }
-};
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).send('Method Not Allowed');
     return;
   }
 
-  let rawBody = '';
-  for await (const chunk of req) {
-    rawBody += chunk;
-  }
+  const { summary, description = '', year, month, day, hour, minute, duration } = req.body;
 
-  let body;
-  try {
-    body = JSON.parse(rawBody.trim());
-  } catch (err) {
-    console.error('Invalid JSON:', err);
-    res.status(400).send('Invalid JSON');
+  // Validation with explicit type checking
+  if (
+    typeof summary !== 'string' || !summary.trim() ||
+    Number.isNaN(Number(year)) ||
+    Number.isNaN(Number(month)) ||
+    Number.isNaN(Number(day)) ||
+    Number.isNaN(Number(hour)) ||
+    Number.isNaN(Number(minute)) ||
+    Number.isNaN(Number(duration))
+  ) {
+    res.status(400).send('Missing or invalid parameters.');
     return;
   }
 
-  const { summary, description = '', year, month, day, hour, minute, duration } = body;
+  // Convert all fields to numbers safely
+  const startDate = new Date(Date.UTC(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour) + 7,  // timezone offset adjustment
+    Number(minute)
+  ));
 
-  if (!summary || !year || !month || !day || !hour || !minute || !duration) {
-    res.status(400).send('Missing required parameters.');
-    return;
-  }
-
-  const startDate = new Date(Date.UTC(year, month - 1, day, hour + 7, minute));
-  const endDate = new Date(startDate.getTime() + duration * 60000);
+  const endDate = new Date(startDate.getTime() + Number(duration) * 60000);
 
   const payload = {
-    summary,
-    description,
+    summary: summary.trim(),
+    description: description.trim(),
     start: startDate.toISOString(),
     end: endDate.toISOString()
   };
